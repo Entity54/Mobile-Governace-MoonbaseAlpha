@@ -590,7 +590,7 @@ Some sort of description for the referendum`,
     //#endregion *** ALLOWS THE CREATION OF LOCAL SCHEDULED NOTIFICATIONS *** end
 
 
-    //#region
+    //#region 
     //This part sends a Push notirfication and normally would be inside a server
     const sendPushNotificationHandler = () => {
         fetch('https://exp.host/--/api/v2/push/send',{

@@ -16,11 +16,15 @@ import { useWalletConnect } from "@walletconnect/react-native-dapp";
 import ang_raw from './src/Abis/ang.json';     
 const angAddress  = "0xfbA2D41e8bE28228Ff53faf41Fe9fc0CCC506561";
 
+// ****************************************************************************
+const SC_NTT54_CHANNELS_ADDRESS = "0xB86f967c067d536bd995050F7806f2A7943756D9";
+// ****************************************************************************
+import channels_raw from './src/Abis/ntt54_Channels.json';     
+
 const precompil_democracy_address = "0x0000000000000000000000000000000000000803";
 import democracy_raw from './src/Abis/democracy.json';     
 
 
- 
 
 
 const shortenAddress = (address: string) => {
@@ -67,22 +71,9 @@ export default function WalletConnectExperience() {
 
     const sc_ang =  new ethers.Contract( angAddress, ang_raw.abi, newSigner);
     const sc_democracy =  new ethers.Contract( precompil_democracy_address, democracy_raw.abi, newSigner);
+    const sc_channels  =  new ethers.Contract( SC_NTT54_CHANNELS_ADDRESS  , channels_raw.abi , newSigner);
 
-    
-    updateSignerElements(newSigner, sc_ang, sc_democracy)
-
-    //#region Old
-    // const ang_number = (await sc_ang.retrieve()).toString();
-    // console.log(`ang_number: ${ang_number} `,ang_number );
-
-    // // const tx3 = await sc_ang.store(1111);
-    // const tx3 = await sc_ang.store(Number(ang_number) + 1);
-
-    // tx3.wait().then( async reslveMsg => {
-    //   console.log(`tx3 for transfer is mined resolveMsg : `,reslveMsg);
-    // });
-    //#endregion Old
-
+    updateSignerElements(newSigner, sc_ang, sc_democracy, sc_channels)
 
   }
 

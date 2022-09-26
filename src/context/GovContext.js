@@ -8,6 +8,9 @@ export const GovProvider = ({children}) => {
     const [wallet, setWallet] = useState();
     const [scComs, setScComs] = useState();
     const [scGov, setScGov] = useState();
+    const [scChannels, setScChannels] = useState();
+
+    
 
  
 
@@ -15,15 +18,15 @@ export const GovProvider = ({children}) => {
     //     setName(newName);
     // }
 
-    const updateSignerElements = (_wallet, _scComs, _scGov) => {
+    const updateSignerElements = (_wallet, _scComs, _scGov, _scChannels) => {
         setWallet(_wallet);
         setScComs(_scComs);
         setScGov(_scGov);
-
+        setScChannels(_scChannels)
     }
 
 
-    return <GovContext.Provider value={{wallet, scComs, scGov, updateSignerElements, }} >
+    return <GovContext.Provider value={{wallet, scComs, scGov, updateSignerElements, scChannels }} >
         {children}
     </GovContext.Provider>;
 };
