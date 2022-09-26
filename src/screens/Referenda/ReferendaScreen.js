@@ -1,11 +1,13 @@
 import React, { useMemo, useEffect, useContext, useState } from "react";
-import { Text, StyleSheet, View, Button, TouchableOpacity, StatusBar, TextInput, ScrollView,  Alert, Platform } from 'react-native';
+import { Text, FlatList, StyleSheet, View, Button, TouchableOpacity, StatusBar, TextInput, ScrollView,  Alert, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
 import WalletConnectExperience from "../../../WalletConnectExperience";
 import GovContext from '../../context/GovContext';
 import { ethers } from 'ethers';  
 import axios from 'axios';
+
+import {query_LatestReferendaandProposals} from '../../Queries';    
 
 
 
@@ -58,244 +60,23 @@ const url = 'https://api.subquery.network/sq/Entity54/MoonbaseAlphaGov' ;
 // const url = 'https://api.subquery.network/sq/Entity54/MoonbaseAlphaGovernance' ;
 
 //#region sendGraphQLRequestFromNum
-const sendGraphQLRequestFromNum = async () => {	 
-    console.log(`====> SENDING  A SUBQUERY sendGraphQLRequestFromNum for blockNum: ${blockNum}`);
-    let pendingNotificationsArray = [], lastBlockNumberIndexed = blockNum-1;
+// const query = query_AllAfterBlockNum(blockNum);
+const _sendGraphQLRequestFromNum = async () => {	 
+    console.log(`====> SENDING  A SUBQUERY for active Referenda adn Proposals`);
     
-    const query = query_AllAfterBlockNum(blockNum);
+    const query = query_LatestReferendaandProposals();
     axios({ url: `${url}`, method: 'post', data: { query: query } })
     .then( async (result) => {
-            // console.log("====> GRAPHQL sendRequest 4 ======> : ",result.data)
-            // console.log("====> GRAPHQL sendRequest JSON.stringify(result.data)  ======> : ",JSON.stringify(result.data))
-
-            // //voteds
-            // const voteds_dataArray = result.data.data.voteds.nodes;
-            // // console.log("====> GRAPHQL voted_dataArray : ",JSON.stringify(voted_dataArray));
-            // console.log(" ===========>>>>>> GRAPHQL voted_dataArray");
-            // if (voteds_dataArray.length>0)
-            // {
-            //     voteds_dataArray.forEach((elem) => {
-            //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.voterAccountId: ${elem.voterAccountId} elem.refIndex: ${elem.refIndex} elem.voteBalance: ${elem.voteBalance} elem.voteConvictionNum: ${elem.voteConvictionNum} elem.voteLock: ${elem.voteLock} elem.voteDirection: ${elem.voteDirection} elem.voteAye: ${elem.voteAye} elem.voteNay: ${elem.voteNay} elem.voteTypeStandard: ${elem.voteTypeStandard}  elem.extrinsicHash: ${elem.extrinsicHash}`);
-            //         const notificationPayload = {
-            //             id: elem.id,
-            //             eventTrigger: "voted",
-            //             blockNum: elem.blockNum,
-            //             timestamp: elem.timestamp,
-            //             title: `New ${elem.voteDirection} Vote for referendum:${elem.refIndex}`, 
-            //             body: `Account ${elem.voterAccountId} has just voted ${elem.voteDirection} for referendum ${elem.refIndex} with ${elem.voteBalance} tokens and ${elem.voteLock} conviction.`
-            //         }
-            //         pendingNotificationsArray.push(notificationPayload);
-            //         lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
-            //     })
-            // }
-            // else console.log(`voteds_dataArray is blank`);
-
-            // //preImageNoteds
-            // const preImageNoteds_dataArray = result.data.data.preImageNoteds.nodes;
-            // console.log(" ===========>>>>>> GRAPHQL preImageNoteds_dataArray");
-            // // console.log("====> GRAPHQL preImageNoteds_dataArray : ",JSON.stringify(preImageNoteds_dataArray));
-            // if (preImageNoteds_dataArray.length>0)
-            // {
-            //     preImageNoteds_dataArray.forEach((elem) => {
-            //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.preImageHash: ${elem.preImageHash} elem.preImageAccountId: ${elem.preImageAccountId} elem.preImageStorageFees: ${elem.preImageStorageFees} elem.extrinsicHash: ${elem.extrinsicHash}`);
-            //         const notificationPayload = {
-            //             id: elem.id,
-            //             eventTrigger: "preImageNoted",
-            //             blockNum: elem.blockNum,
-            //             timestamp: elem.timestamp,
-            //             title: `New preImage submitted`, 
-            //             body: `Account ${elem.preImageAccountId} has just submitted preImage with hash ${elem.preImageHash} paying ${elem.preImageStorageFees} tokens.`
-            //         }
-            //         pendingNotificationsArray.push(notificationPayload);
-            //         lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
-            //     })
-            // }
-            // else console.log(`preImageNoteds_dataArray is blank`);
-
-            // //proposeds
-            // const proposeds_dataArray = result.data.data.proposeds.nodes;
-            // console.log(" ===========>>>>>> GRAPHQL proposeds_dataArray");
-            // // console.log("====> GRAPHQL proposeds_dataArray : ",JSON.stringify(proposeds_dataArray));
-            // if (proposeds_dataArray.length>0)
-            // {
-            //     proposeds_dataArray.forEach((elem) => {
-            //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.proposalIndex: ${elem.proposalIndex} elem.proposalDeposit: ${elem.proposalDeposit} elem.proposalAccountId: ${elem.proposalAccountId} elem.extrinsicHash: ${elem.extrinsicHash}`);
-            //         const notificationPayload = {
-            //             id: elem.id,
-            //             eventTrigger: "proposed",
-            //             blockNum: elem.blockNum,
-            //             timestamp: elem.timestamp,
-            //             title: `New proposal submitted`, 
-            //             body: `Account ${elem.proposalAccountId} has just submitted proposal ${elem.proposalIndex} paying ${elem.proposalDeposit} tokens.`
-            //         }
-            //         pendingNotificationsArray.push(notificationPayload);
-            //         lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
-            //     })
-            // }
-            // else console.log(`proposeds_dataArray is blank`);
-
-
-            // //secondeds
-            // const secondeds_dataArray = result.data.data.secondeds.nodes;
-            // console.log(" ===========>>>>>> GRAPHQL secondeds_dataArray");
-            // // console.log("====> GRAPHQL secondeds_dataArray : ",JSON.stringify(secondeds_dataArray));
-            // if (secondeds_dataArray.length>0)
-            // {
-            //     secondeds_dataArray.forEach((elem) => {
-            //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.proposalIndex: ${elem.proposalIndex} elem.seconderAccountId: ${elem.seconderAccountId} elem.secondedAmount: ${elem.secondedAmount} elem.extrinsicHash: ${elem.extrinsicHash}`);
-            //         const notificationPayload = {
-            //             id: elem.id,
-            //             eventTrigger: "seconded",
-            //             blockNum: elem.blockNum,
-            //             timestamp: elem.timestamp,
-            //             title: `Proposal ${elem.proposalIndex} has been seconded`, 
-            //             body: `Account ${elem.seconderAccountId} has just endorsed proposal ${elem.proposalIndex} paying ${elem.secondedAmount} tokens.`
-            //         }
-            //         pendingNotificationsArray.push(notificationPayload);
-            //         lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
-            //     })
-            // }
-            // else console.log(`secondeds_dataArray is blank`);
-
-            // //tableds
-            // const tableds_dataArray = result.data.data.tableds.nodes;
-            // console.log(" ===========>>>>>> GRAPHQL tableds_dataArray");
-            // // console.log("====> GRAPHQL tableds_dataArray : ",JSON.stringify(tableds_dataArray));
-            // if (tableds_dataArray.length>0)
-            // {
-            //     tableds_dataArray.forEach((elem) => {
-            //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.proposalIndex: ${elem.proposalIndex} elem.depositAmount: ${elem.depositAmount} elem.referendumIndex: ${elem.referendumIndex} elem.depositors: `,elem.depositors);
-            //         let listOfDepositors="";
-            //         elem.depositors.forEach(depositorAddress => listOfDepositors +=`${depositorAddress}, `);
-            //         const notificationPayload = {
-            //             id: elem.id,
-            //             eventTrigger: "tabled",
-            //             blockNum: elem.blockNum,
-            //             timestamp: elem.timestamp,
-            //             title: `Proposal ${elem.proposalIndex} has been tabled for referendum`, 
-            //             body: `Proposal ${elem.proposalIndex} has been tabled for referendum ${elem.referendumIndex}. The proposal had ${elem.depositAmount} tokens deposited by each of the following depositors ${listOfDepositors}.`
-            //         }
-            //         pendingNotificationsArray.push(notificationPayload);
-            //         lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
-            //     })
-            // }
-            // else console.log(`tableds_dataArray is blank`);
-
-            // //passeds
-            // const passeds_dataArray = result.data.data.passeds.nodes;
-            // console.log(" ===========>>>>>> GRAPHQL passeds_dataArray");
-            // // console.log("====> GRAPHQL passeds_dataArray : ",JSON.stringify(passeds_dataArray));
-            // if (passeds_dataArray.length>0)
-            // {
-            //     passeds_dataArray.forEach((elem) => {
-            //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.referendumIndex: ${elem.referendumIndex} elem.scheduledEnactmentBlock: ${elem.scheduledEnactmentBlock}`);
-            //         const notificationPayload = {
-            //             id: elem.id,
-            //             eventTrigger: "passed",
-            //             blockNum: elem.blockNum,
-            //             timestamp: elem.timestamp,
-            //             title: `Referendum ${elem.referendumIndex} has been passed`, 
-            //             body: `Referendum ${elem.referendumIndex} passed at block ${elem.blockNum} and timestamp ${elem.timestamp}. Enactment period is scheduled for block: ${elem.scheduledEnactmentBlock}.`
-            //         }
-            //         pendingNotificationsArray.push(notificationPayload);
-            //         lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
-            //     })
-            // }
-            // else console.log(`passeds_dataArray is blank`);
-
-            //notPasseds
-            // const notPasseds_dataArray = result.data.data.notPasseds.nodes;
-            // console.log(" ===========>>>>>> GRAPHQL notPasseds_dataArray");
-            // // console.log("====> GRAPHQL notPasseds_dataArray : ",JSON.stringify(notPasseds_dataArray));
-            // if (notPasseds_dataArray.length>0)
-            // {
-            //     notPasseds_dataArray.forEach((elem) => {
-            //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.referendumIndex: ${elem.referendumIndex}.`);
-            //         const notificationPayload = {
-            //             id: elem.id,
-            //             eventTrigger: "notPassed",
-            //             blockNum: elem.blockNum,
-            //             timestamp: elem.timestamp,
-            //             title: `Referendum ${elem.referendumIndex} has NOT been passed`, 
-            //             body: `Referendum ${elem.referendumIndex} did NOT pass at block ${elem.blockNum} and timestamp ${elem.timestamp}.`
-            //         }
-            //         pendingNotificationsArray.push(notificationPayload);
-            //         lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
-            //     })
-            // }
-            // else console.log(`notPasseds_dataArray is blank`);
-
-            // //executeds
-            // const executeds_dataArray = result.data.data.executeds.nodes;
-            // console.log(" ===========>>>>>> GRAPHQL executeds_dataArray");
-            // // console.log("====> GRAPHQL executeds_dataArray : ",JSON.stringify(executeds_dataArray));
-            // if (executeds_dataArray.length>0)
-            // {
-            //     executeds_dataArray.forEach((elem) => {
-            //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.referendumIndex: ${elem.referendumIndex} elem.result: ${elem.result} elem.proposalHash: ${elem.proposalHash} elem.providerAccount: ${ elem.providerAccount} elem.refundedAmountString: ${elem.refundedAmountString} elem.refundedAmount: ${elem.refundedAmount}`);
-            //         const notificationPayload = {
-            //             id: elem.id,
-            //             eventTrigger: "executed",
-            //             blockNum: elem.blockNum,
-            //             timestamp: elem.timestamp,
-            //             title: `PreImage of referendum ${elem.referendumIndex} has been executed`, 
-            //             body: `PreImage with hash ${elem.proposalHash} of referendum ${elem.referendumIndex} has been executed. The amount of ${elem.refundedAmount} tokens will be refunded to preimage provider account: ${elem.providerAccount}.`
-            //         }
-            //         pendingNotificationsArray.push(notificationPayload);
-            //         lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
-            //     })
-            // }
-            // else console.log(`executeds_dataArray is blank`);
-
-
-            // //removeVoteCalls
-            // const removeVoteCalls_dataArray = result.data.data.removeVoteCalls.nodes;
-            // console.log(" ===========>>>>>> GRAPHQL removeVoteCalls_dataArray");
-            // // console.log("====> GRAPHQL removeVoteCalls_dataArray : ",JSON.stringify(removeVoteCalls_dataArray));
-            // if (removeVoteCalls_dataArray.length>0)
-            // {
-            //     removeVoteCalls_dataArray.forEach((elem) => {
-            //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.signerAccountId: ${elem.signerAccountId} elem.argsIndex: ${elem.argsIndex}`);
-            //         const notificationPayload = {
-            //             id: elem.id,
-            //             eventTrigger: "removeVoteCall",
-            //             blockNum: elem.blockNum,
-            //             timestamp: elem.timestamp,
-            //             title: `Account ${elem.signerAccountId} has removed vote`, 
-            //             body: `Account ${elem.signerAccountId} removed vote from referendum ${elem.argsIndex} at block ${elem.blockNum} and timestamp ${elem.timestamp}.`
-            //         }
-            //         pendingNotificationsArray.push(notificationPayload);
-            //         lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
-            //     })
-            // }
-            // else console.log(`removeVoteCalls_dataArray is blank`);
-
-            // //unlockCalls
-            // const unlockCalls_dataArray = result.data.data.unlockCalls.nodes;
-            // console.log(" ===========>>>>>> GRAPHQL proposalCanceleds_dataArray");
-            // // console.log("====> GRAPHQL unlockCalls_dataArray : ",JSON.stringify(unlockCalls_dataArray));
-            // if (unlockCalls_dataArray.length>0)
-            // {
-            //     unlockCalls_dataArray.forEach((elem) => {
-            //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.signerAccountId: ${elem.signerAccountId} elem.argsTargetAccountId: ${elem.argsTargetAccountId}`);
-            //         const notificationPayload = {
-            //             id: elem.id,
-            //             eventTrigger: "unlockCall",
-            //             blockNum: elem.blockNum,
-            //             timestamp: elem.timestamp,
-            //             title: `Account ${elem.argsTargetAccountId} received unlocked tokens`, 
-            //             body: `Account ${elem.signerAccountId} unlocked tokens for account ${elem.argsTargetAccountId} at block ${elem.blockNum} and timestamp ${elem.timestamp}.`
-            //         }
-            //         pendingNotificationsArray.push(notificationPayload);
-            //         lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
-            //     })
-            // }
-            // else console.log(`unlockCalls_dataArray is blank`);
-
 
             //activeProposalsReferendaLists
-            const activeProposalsReferendaLists_dataArray = result.data.data.activeProposalsReferendaLists.nodes;
-            console.log(" ===========>>>>>> GRAPHQL activeProposalsReferendaLists_dataArray");
+            const _activeProposalsReferendaLists_dataArray = result.data.data.activeProposalsReferendaLists.nodes;
+            const activeProposalsReferendaLists_dataArray = _activeProposalsReferendaLists_dataArray[0];
+
+            console.log(" ===========>>>>>> GRAPHQL activeProposalsReferendaLists_dataArray: ",activeProposalsReferendaLists_dataArray);
+            const referendaArray = JSON.parse(activeProposalsReferendaLists_dataArray.referendaArray)
+
+            console.log(" ===========>>>>>> GRAPHQL referendaArray: ",referendaArray);
+
             // console.log("====> GRAPHQL activeProposalsReferendaLists_dataArray : ",JSON.stringify(activeProposalsReferendaLists_dataArray));
             if (activeProposalsReferendaLists_dataArray.length>0)
             {
@@ -310,7 +91,7 @@ const sendGraphQLRequestFromNum = async () => {
                         // console.log(`|||||>>>> elem.referendaArray ${typeof referendaArray} <<<|||||: `,elem.referendaArray);
                         const referendaHeaders = `Index\tEndBlock\tProposalHash\tEnactmentDelay\tAYES\tNAYS\tturnout\n`
                         // referendaArray.forEach(referendum => referendaList +=`${referendum.referendumIndex}\t${referendum.refrendumEndBlock}\t${referendum.refrendumProposalHash}\t${referendum.refrendumDelay}\t${web3.utils.fromWei(referendum.refrendumTally.ayes)}\t${web3.utils.fromWei(referendum.refrendumTally.nays)}\t${web3.utils.fromWei(referendum.refrendumTally.turnout)}\n`);
-                        referendaArray.forEach(referendum => referendaList +=`${referendum.referendumIndex}\t${referendum.refrendumEndBlock}\t${referendum.refrendumProposalHash}\t${referendum.refrendumDelay}\t${ethers.utils.formatUnits(referendum.refrendumTally.ayes)}\t${ethers.utils.formatUnits(referendum.refrendumTally.nays)}\t${wethers.utils.formatUnits(referendum.refrendumTally.turnout)}\n`);
+                        referendaArray.forEach(referendum => referendaList +=`${referendum.referendumIndex}\t${referendum.refrendumEndBlock}\t${referendum.refrendumProposalHash}\t${referendum.refrendumDelay}\t${ethers.utils.formatUnits(referendum.refrendumTally.ayes)}\t${ethers.utils.formatUnits(referendum.refrendumTally.nays)}\t${ethers.utils.formatUnits(referendum.refrendumTally.turnout)}\n`);
 
                     }
                     console.log(referendaList);
@@ -326,13 +107,13 @@ const sendGraphQLRequestFromNum = async () => {
 
                     console.log(` ******************************************************************* `);
 
-                    lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
+                    // lastBlockNumberIndexed = Math.max(lastBlockNumberIndexed, Number(elem.blockNum));
                 })
             }
             else console.log(`activeProposalsReferendaLists_dataArray is blank`);
 
 
-            return { activeProposalsReferendaLists_dataArray};
+            return activeProposalsReferendaLists_dataArray;
             // return {voteds_dataArray, preImageNoteds_dataArray, proposeds_dataArray, secondeds_dataArray, tableds_dataArray, passeds_dataArray, notPasseds_dataArray, activeProposalsReferendaLists_dataArray};
             // return {voteds_dataArray, preImageNoteds_dataArray, proposeds_dataArray, secondeds_dataArray, tableds_dataArray, passeds_dataArray, notPasseds_dataArray, removeVoteCalls_dataArray, unlockCalls_dataArray, activeProposalsReferendaLists_dataArray};
 
@@ -422,15 +203,106 @@ Some sort of description for the referendum`,
     const [encodedProposal, setEncodedProposal]  = useState();
     const [representativeAddress, setRepresentativeAddress]  = useState();
     const [unlockTargetAddress, setUnlockTargetAddress]  = useState();
+
+
+    const [referendaArray, setReferendaArray]  = useState([]);
+
     
     const {wallet, scComs, scGov, updateSignerElements} = useContext(GovContext);
     
 
+    // ===========>>>>>> GRAPHQL referendaArray:  Array [
+    //     Object {
+    //       "referendumIndex": 128,
+    //       "refrendumDelay": 7500,
+    //       "refrendumEndBlock": 2908800,
+    //       "refrendumProposalHash": "0xaa481a9aa96a037c3fe9a3155733ed7f5743f5ead387f68b4835a054f3d02a63",
+    //       "refrendumTally": Object {
+    //         "ayes": "10000000000000000",
+    //         "nays": "0",
+    //         "turnout": "100000000000000000",
+    //       },
+    //     },
+    //     Object {
+    //       "referendumIndex": 129,
+    //       "refrendumDelay": 7500,
+    //       "refrendumEndBlock": 2916000,
+    //       "refrendumProposalHash": "0x140f5bd9b41ec9a93389ea1c792365d348c695179fd61189117683f9575ff455",
+    //       "refrendumTally": Object {
+    //         "ayes": "15000000000000000000",
+    //         "nays": "0",
+    //         "turnout": "5000000000000000000",
+    //       },
+
+    const sendGraphQLRequestFromNum = async () => {	 
+        console.log(`====> SENDING  A SUBQUERY for active Referenda adn Proposals`);
+        
+        const query = query_LatestReferendaandProposals();
+        axios({ url: `${url}`, method: 'post', data: { query: query } })
+        .then( async (result) => {
+    
+                //activeProposalsReferendaLists
+                const _activeProposalsReferendaLists_dataArray = result.data.data.activeProposalsReferendaLists.nodes;
+                const activeProposalsReferendaLists_dataArray = _activeProposalsReferendaLists_dataArray[0];
+    
+                console.log(" ===========>>>>>> GRAPHQL activeProposalsReferendaLists_dataArray: ",activeProposalsReferendaLists_dataArray);
+                const referendaArray = JSON.parse(activeProposalsReferendaLists_dataArray.referendaArray)
+                setReferendaArray(referendaArray);
+                console.log(" ===========>>>>>> GRAPHQL referendaArray: ",referendaArray);
+    
+                // // console.log("====> GRAPHQL activeProposalsReferendaLists_dataArray : ",JSON.stringify(activeProposalsReferendaLists_dataArray));
+                // if (activeProposalsReferendaLists_dataArray.length>0)
+                // {
+                //     activeProposalsReferendaLists_dataArray.forEach((elem) => {
+                //         // console.log(`elem.id: ${elem.id} elem.blockNum: ${elem.blockNum} elem.timestamp: ${elem.timestamp} elem.now: ${elem.now} elem.lowestUnbaked: ${elem.lowestUnbaked} elem.referendumCount: ${elem.referendumCount} elem.publicPropsLength: ${elem.publicPropsLength}`);
+                //         console.log(` ******************************************************************* `);
+                //         console.log(` BlokcNumber: ${elem.blockNum} Timestmap: ${elem.timestamp} LowestUnbaked: ${elem.lowestUnbaked} ReferendumCount: ${elem.referendumCount} ProposalCount: ${elem.publicPropsLength}`);
+                //         let referendaList = "", referendaArray=[];
+                //         if (elem.referendaArray)
+                //         {
+                //             const referendaArray = JSON.parse(elem.referendaArray)
+                //             // console.log(`|||||>>>> elem.referendaArray ${typeof referendaArray} <<<|||||: `,elem.referendaArray);
+                //             const referendaHeaders = `Index\tEndBlock\tProposalHash\tEnactmentDelay\tAYES\tNAYS\tturnout\n`
+                //             // referendaArray.forEach(referendum => referendaList +=`${referendum.referendumIndex}\t${referendum.refrendumEndBlock}\t${referendum.refrendumProposalHash}\t${referendum.refrendumDelay}\t${web3.utils.fromWei(referendum.refrendumTally.ayes)}\t${web3.utils.fromWei(referendum.refrendumTally.nays)}\t${web3.utils.fromWei(referendum.refrendumTally.turnout)}\n`);
+                //             referendaArray.forEach(referendum => referendaList +=`${referendum.referendumIndex}\t${referendum.refrendumEndBlock}\t${referendum.refrendumProposalHash}\t${referendum.refrendumDelay}\t${ethers.utils.formatUnits(referendum.refrendumTally.ayes)}\t${ethers.utils.formatUnits(referendum.refrendumTally.nays)}\t${ethers.utils.formatUnits(referendum.refrendumTally.turnout)}\n`);
+    
+                //         }
+                //         console.log(referendaList);
+    
+                //         let proposaList = "";
+                //         if (elem.proposalList)
+                //         {
+                //             const proposalArray = JSON.parse(elem.proposalList)
+                //             console.log(`|||||>>>> elem.proposalList ${typeof  proposalArray} : `,elem.proposalList);
+    
+                //         }
+                //         console.log(`proposaList: `,proposaList);
+                //         console.log(` ******************************************************************* `);
+    
+                //     })
+                // }
+    
+    
+                return activeProposalsReferendaLists_dataArray;
+                // return {voteds_dataArray, preImageNoteds_dataArray, proposeds_dataArray, secondeds_dataArray, tableds_dataArray, passeds_dataArray, notPasseds_dataArray, activeProposalsReferendaLists_dataArray};
+                // return {voteds_dataArray, preImageNoteds_dataArray, proposeds_dataArray, secondeds_dataArray, tableds_dataArray, passeds_dataArray, notPasseds_dataArray, removeVoteCalls_dataArray, unlockCalls_dataArray, activeProposalsReferendaLists_dataArray};
+    
+        });
+    };
+    //#endregion sendGraphQLRequestFromNum
+
+
+
+
     //#region PUSH NOTIFICATIONS SET UP PERMISSIONS AND GET DEVICE TOKEN
     useEffect(() => {
-        console.log(`Willl Run Queries`);
-        // sendGraphQLRequestFromNum();
+        sendGraphQLRequestFromNum();
 
+        setInterval( () => {
+            console.log(`*** Willl Run Queries ***`);
+            sendGraphQLRequestFromNum();
+        },20000);
+        
     },[])
     //#endregion
 
@@ -739,14 +611,6 @@ Some sort of description for the referendum`,
     
     
     
-    
-    
-    
-    
-    
-    
-    // const { t } = useTranslation();
-    // const { colors } = useTheme();
     const { remainder, usersLimit } = useMemo(() => {
         const limitInt = parseInt(limit);
         let remainder = 0;
@@ -793,120 +657,142 @@ Some sort of description for the referendum`,
         }
     }, [status]);
 
+
+   
+    
+
+    // <Text style={styles.textStyle}>#{referendaArray[0].referendumIndex} </Text>
+
+
     return (
         <View>
          <WalletConnectExperience />
 
-                   
-        <TouchableOpacity alpha={"Angelos"} onPress={() => navigation.navigate("Referendum", {id: "Angelos2022", name:"Ntt54"})} >
+         {
+            referendaArray.length===0 ?
+            <Text style={styles.textStyle}>Loading </Text> :
+            <FlatList 
+                    keyExtractor={(item) => item.referendumIndex}
+                    data={referendaArray} 
+                    renderItem={({item, index}) => {
+                        return  (
+                        // <Text style={styles.textStyle}>#{item.referendumIndex} </Text>
 
-        <View style={[styles.contain, style, { backgroundColor: colors.card }]}>
-            <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
-                        <Text title3 numberOfLines={1}>
-                            {title}
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        hitSlop={{ top: 10, right: 10, top: 10, left: 10 }}
-                        style={{ paddingLeft: 16 }}
-                        onPress={onOption}
-                    >
-                        <Icon name="ellipsis-h" size={14} color={colors.text}></Icon>
-                    </TouchableOpacity>
-                </View>
-                <View
-                    style={{
-                        flexDirection: "row",
-                        paddingTop: 5,
-                        paddingBottom: 10,
-                    }}
-                >
-                    <Tag
-                        light
-                        textStyle={{
-                            color: BaseColor.whiteColor,
-                        }}
-                        style={{
-                            backgroundColor: statusColor,
-                            paddingHorizontal: 10,
-                            minWidth: 80,
-                        }}
-                    >
-                        {statusName}
-                    </Tag>
-                </View>
-                <View
-                    style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        paddingBottom: 20,
-                    }}
-                >
-                    <Icon name="tasks" size={14} color={colors.text} />
-                    <Text
-                        caption1
-                        style={{
-                            paddingLeft: 5,
-                            paddingRight: 20,
-                        }}
-                    >
-                        {tasks} {"tasks"}
-                    </Text>
+                        <TouchableOpacity  onPress={() => navigation.navigate("Referendum", { refIndex: "item.referendumIndex",
+                             refIndex: item.referendumIndex, delay: item.refrendumDelay, refrendumEndBlock: item.refrendumEndBlock,
+                             refrendumProposalHash: item.refrendumProposalHash, refrendumTallyAye: item.refrendumTally.ayes, 
+                             refrendumTallyNay: item.refrendumTally.nays, refrendumTallyTurnout: item.refrendumTally.turnout,
+                             description: `Referendum with preImage Hash ${item.refrendumProposalHash} \nwill end at block ${item.refrendumEndBlock} and an enactment delay of ${ item.refrendumDelay} blocks will follow.`,
+                        })} >
 
-                    <Icon solid name="comment" size={14} color={colors.text} />
-                    <Text
-                        caption1
-                        style={{
-                            paddingHorizontal: 5,
-                        }}
-                    >
-                        {comments} {"comments"}
-                    </Text>
-                </View>
-                <Text caption2 light>
-                    {description}
-                </Text>
-                <View
-                    style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        paddingTop: 20,
-                    }}
-                >
-             
-                </View>
-                <View
-                    style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        paddingTop: 0,
-                        paddingBottom: 5,
-                        justifyContent: "space-between",
-                    }}
-                >
-                        {/* {t("Vote Progress")} {`${percent}%`} */}
-                    <Text overline>
-                        {("Vote Progress")} {`${"percent100%"}%`}
-
-                    </Text>
+                        <View style={[styles.contain, style, { backgroundColor: colors.card }]}>
+                            <View style={{ flex: 1 }}>
+                                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                    <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
+                                        <Text title3 numberOfLines={1}>
+                                            {`Referendum:${item.referendumIndex}`}
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        hitSlop={{ top: 10, right: 10, top: 10, left: 10 }}
+                                        style={{ paddingLeft: 16 }}
+                                        onPress={onOption}
+                                    >
+                                        <Icon name="ellipsis-h" size={14} color={colors.text}></Icon>
+                                    </TouchableOpacity>
+                                </View>
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        paddingTop: 5,
+                                        paddingBottom: 10,
+                                    }}
+                                >
+                                    <Tag
+                                        light
+                                        textStyle={{
+                                            color: BaseColor.whiteColor,
+                                        }}
+                                        style={{
+                                            backgroundColor: statusColor,
+                                            paddingHorizontal: 10,
+                                            minWidth: 80,
+                                        }}
+                                    >
+                                        {statusName}
+                                    </Tag>
+                                </View>
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        paddingBottom: 20,
+                                    }}
+                                >
+                                    <Icon name="tasks" size={14} color={colors.text} />
+                                    <Text
+                                        caption1
+                                        style={{
+                                            paddingLeft: 5,
+                                            paddingRight: 20,
+                                        }}
+                                    >
+                                        {tasks} {"tasks"}
+                                    </Text>
                 
-                </View>
-                <ProgressBar
-                    style={{ flex: 1, paddingRight: 20 }}
-                    color={BaseColor.accentColor}
-                    percent={percent}
-                />
-            </View>
-        </View>
+                                    <Icon solid name="comment" size={14} color={colors.text} />
+                                    <Text
+                                        caption1
+                                        style={{
+                                            paddingHorizontal: 5,
+                                        }}
+                                    >
+                                        {comments} {"comments"}
+                                    </Text>
+                                </View>
+                                <Text caption2 light>
+                                    {`Referendum with preImage Hash ${item.refrendumProposalHash} \nwill end at block ${item.refrendumEndBlock} and an enactment delay of ${ item.refrendumDelay} blocks will follow.`}
+                                </Text>
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        paddingTop: 20,
+                                    }}
+                                >
+                             
+                                </View>
+                                <View
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        paddingTop: 0,
+                                        paddingBottom: 5,
+                                        justifyContent: "space-between",
+                                    }}
+                                >
+                                    <Text overline>
+                                        {("Vote Progress")} {`AYES: ${ethers.utils.formatUnits(item.refrendumTally.ayes)} NAYS: ${ethers.utils.formatUnits(item.refrendumTally.nays)} TURNOUT: ${ethers.utils.formatUnits(item.refrendumTally.turnout)}`}
+                
+                                    </Text>
+                                
+                                </View>
+                                <ProgressBar
+                                    style={{ flex: 1, paddingRight: 20 }}
+                                    color={BaseColor.accentColor}
+                                    percent={percent}
+                                />
+                            </View>
+                        </View>
+                       </TouchableOpacity>
+                        )
+                    }}
+            /> 
+        }
+                   
+       
 
-       </TouchableOpacity>
-
-                        {/* <Button
-                            title="Go to Referendum Screen"
-                            onPress={() => navigation.navigate('Referendum')}
-                        /> */}
+                  
         </View>
     );
 };

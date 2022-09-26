@@ -156,7 +156,32 @@ const query_AllAfterBlockNum = (blockNum="") => {
 
 
 
+
+const query_LatestReferendaandProposals = () => {
+    const query =
+            `
+            query {
+                activeProposalsReferendaLists (last: 1) {
+                    nodes {
+                            id,
+                            blockNum,
+                            now,
+                            timestamp,
+                            lowestUnbaked,
+                            referendumCount,
+                            publicPropsLength,
+                            proposalList,
+                            referendaArray,
+                        }
+                },
+              }
+            `;
+    return query
+};
+
+
+
 module.exports = {
-    query_AllAfterBlockNum,
-    
+    // query_AllAfterBlockNum,
+    query_LatestReferendaandProposals,
 }
